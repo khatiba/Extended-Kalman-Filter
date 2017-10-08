@@ -11,7 +11,7 @@ Tools::~Tools() {}
 
 VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
                               const vector<VectorXd> &ground_truth) {
-    VectorXd rmse(4);
+  VectorXd rmse(4);
 	rmse << 0, 0, 0, 0;
 
 	// check the validity of the following inputs:
@@ -23,7 +23,7 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
 	}
 
 	// accumulate squared residuals
-	for(unsigned int i=0; i < estimations.size(); ++i) {
+	for (unsigned int i=0; i < estimations.size(); ++i) {
 		VectorXd residual = estimations[i] - ground_truth[i];
 		// coefficient-wise multiplication
 		residual = residual.array()*residual.array();
@@ -39,13 +39,7 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
 }
 
 MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
-    MatrixXd Hj(3,4);
-
-    // Initialize in case we need to bail with div by zero error
-    Hj << 0, 0, 0, 0,
-          0, 0, 0, 0,
-          0, 0, 0, 0,
-          0, 0, 0, 0;
+  MatrixXd Hj(3,4);
 
 	// recover state parameters
 	float px = x_state(0);
@@ -59,15 +53,21 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
 	float c3 = (c1*c2);
 
 	// check division by zero
-	if(fabs(c1) < 0.0001) {
+	if (c1 < 0.0001) {
 		cout << "CalculateJacobian () - Error - Division by Zero" << endl;
+
+    // Initialize in case we need to bail with div by zero error
+    Hj << 0, 0, 0, 0,
+          0, 0, 0, 0,
+          0, 0, 0, 0;
+
 		return Hj;
 	}
 
 	// compute the Jacobian matrix
 	Hj << (px/c2)               , (py/c2)               , 0     , 0,
-		  -(py/c1)              , (px/c1)               , 0     , 0,
-		  py*(vx*py - vy*px)/c3 , px*(px*vy - py*vx)/c3 , px/c2 , py/c2;
+		    -(py/c1)              , (px/c1)               , 0     , 0,
+		    py*(vx*py - vy*px)/c3 , px*(px*vy - py*vx)/c3 , px/c2 , py/c2;
 
 	return Hj;
 }
